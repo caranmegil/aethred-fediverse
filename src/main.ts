@@ -2,7 +2,7 @@ import generator, { Response, OAuth, Entity/*, WebSocketInterface*/ } from 'mega
 import Koa from 'koa'
 import Router from 'koa-router'
 import request from 'superagent'
-import * as moment from 'moment'
+import moment from 'moment'
 
 const SCOPES: Array<string> = ['read', 'write', 'follow']
 const BASE_URL: string = `https://${process.env.HOST}` || 'https://chilli.social'
