@@ -3,7 +3,6 @@ import Koa from 'koa'
 import Router from 'koa-router'
 import request from 'superagent'
 import moment from 'moment'
-import 'moment-duration-format'
 
 const SCOPES: Array<string> = ['read', 'write', 'follow']
 const BASE_URL: string = `https://${process.env.HOST}` || 'https://chilli.social'
@@ -43,7 +42,7 @@ client
               let permissions = res.body.results
               if ( (permissions.indexOf("master") > -1 || permissions.indexOf("commander") >= -1) && value.content.includes(`${process.env.NAME}`)) {
                 let created_at = moment(value.created_at, "YYYY-MM-DDTHH:mm:ss.SSSZ")
-                if (created_at.duration().asMilliseconds() >= next_available.duration().asMilliseconds()) {
+                if (next_available.isBefore(created_at)) {
                   next_available = created_at
 
                   request
