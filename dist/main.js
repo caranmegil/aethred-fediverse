@@ -42,6 +42,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var megalodon_1 = __importDefault(require("megalodon"));
 var koa_1 = __importDefault(require("koa"));
 var koa_router_1 = __importDefault(require("koa-router"));
+var superagent_1 = __importDefault(require("superagent"));
 var SCOPES = ['read', 'write', 'follow'];
 var BASE_URL = "https://" + process.env.HOST || 'https://chilli.social';
 var accessToken;
@@ -73,18 +74,29 @@ router.get("/", function (ctx, _) { return __awaiter(void 0, void 0, void 0, fun
             console.log('\nrefresh_token:');
             console.log(refreshToken);
             console.log();
-            var activeClient = megalodon_1.default('pleroma', "wss://" + process.env.HOST, accessToken);
-            var stream = activeClient.userSocket();
-            stream.on('notification', function (notification) {
-                if (notification.account.acct === 'caranmegil' && notification.type === 'mention' && notification.status !== undefined && notification.status.content !== undefined) {
-                    console.log(notification.account.acct + ": " + notification.status.content);
-                }
-                console.log(notification);
+            var activeClient = megalodon_1.default('pleroma', "https://" + process.env.HOST, accessToken);
+            activeClient.getPublicTimeline().then(function (resp) {
+                resp.data.forEach(function (value) {
+                    console.log('-->' + encodeURI(process.env.PERMISSIONS_HOST + "/fediverse/" + value.account.acct));
+                    superagent_1.default
+                        .get(encodeURI(process.env.PERMISSIONS_HOST + "/fediverse/" + value.account.acct))
+                        .then(function (res) {
+                        console.log('-->' + res.body.results);
+                        var permissions = res.body.results;
+                        if ((permissions.indexOf("master") > -1 || permissions.indexOf("commander") >= -1) && value.content.includes(process.env.NAME + "@" + process.env.HOST)) {
+                            superagent_1.default
+                                .post(process.env.LINGUA_HOST + "/")
+                                .send({ text: value.content })
+                                .then(function (resl) {
+                                console.log("-->" + resl.body.response);
+                            });
+                        }
+                    })
+                        .catch(function (err) {
+                        console.log(err);
+                    });
+                });
             });
-            var activeClient2 = megalodon_1.default('pleroma', "https://" + process.env.HOST, accessToken);
-            activeClient2.postStatus('greetings, all!  i\'m just merely a bot.  i promise to be good! #introduction')
-                .then(function (res) { console.log(res); })
-                .catch(function (err) { console.error(err); });
         })
             .catch(function (err) { return console.error(err); });
         return [2];

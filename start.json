@@ -8,6 +8,7 @@
       "env": {
         "HOST": "chilli.social",
         "PORT": "4000",
+        "NAME": "aethred",
         "PERMISSIONS_HOST": "http://localhost:3000",
         "LINGUA_HOST": "http://localhost:2000/",
       }
