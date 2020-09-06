@@ -7,7 +7,7 @@ const SCOPES: Array<string> = ['read', 'write', 'follow']
 const BASE_URL: string = `https://${process.env.HOST}` || 'https://chilli.social'
 
 let accessToken: string | null
-let refreshToken: string | null
+// let refreshToken: string | null
 
 const app = new Koa()
 const router = new Router()
