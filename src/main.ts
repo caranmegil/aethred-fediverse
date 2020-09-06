@@ -50,6 +50,12 @@ client
                     .send( {text: value.content} )
                     .then( (resl) => {
                       activeClient.postStatus(resl.body.response, {in_reply_to_id: value.id})
+                        .then( (res) => {
+                          console.log(res)
+                        })
+                        .catch( (err) => {
+                          console.log(err)
+                        })
                     })
                     .catch( (err) => {
                       console.log(err)
