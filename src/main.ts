@@ -2,7 +2,7 @@ import generator, { Response, OAuth, Entity/*, WebSocketInterface*/ } from 'mega
 import Koa from 'koa'
 import Router from 'koa-router'
 import request from 'superagent'
-import moment from 'moment'
+import * as moment from 'moment'
 
 const SCOPES: Array<string> = ['read', 'write', 'follow']
 const BASE_URL: string = `https://${process.env.HOST}` || 'https://chilli.social'
@@ -30,7 +30,7 @@ client
   })
   .then((tokenData: OAuth.TokenData) => {
     accessToken = tokenData.accessToken
-    let next_available = new moment()
+    let next_available = moment()
 
     const activeClient = generator('pleroma', `https://${process.env.HOST}`, accessToken)
     setInterval( () => {
@@ -44,7 +44,7 @@ client
                 let created_at = moment(value.created_at)
                 if (created_at.duration().asMilliseconds() >= next_available.duration().asMilliseconds()) {
                   next_available = created_at
-                  
+
                   request
                     .post(`${process.env.LINGUA_HOST}`)
                     .send( {text: value.content} )
