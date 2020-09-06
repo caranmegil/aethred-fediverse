@@ -49,9 +49,7 @@ client
                     .post(`${process.env.LINGUA_HOST}`)
                     .send( {text: value.content} )
                     .then( (resl) => {
-                      console.log("!-->" + resl.body.response)
-                      console.log(value)
-                      //activeClient.postStatus(resl.body.response, {in_reply_to_id: value.id})
+                      activeClient.postStatus(resl.body.response, {in_reply_to_id: value.id})
                     })
                     .catch( (err) => {
                       console.log(err)
