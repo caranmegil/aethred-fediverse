@@ -39,13 +39,13 @@ client
             .get(encodeURI(`${process.env.PERMISSIONS_HOST}/fediverse/${value.account.acct}`))
             .then( (res) => {
               let permissions = res.body.results
-              console.log(`--> perms of ${value.account.acct}: ${permissions}`)
               if ( (permissions.indexOf("master") > -1 || permissions.indexOf("commander") >= -1) && value.content.includes(`${process.env.NAME}`)) {
                 request
                   .post(`${process.env.LINGUA_HOST}`)
                   .send( {text: value.content} )
                   .then( (resl) => {
                     console.log("!-->" + resl.body.response)
+                    activeClient.postStatus(resl.body.response, {in_reply_to_id: value.id})
                   })
                   .catch( (err) => {
                     console.log(err)
