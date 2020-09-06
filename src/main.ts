@@ -29,7 +29,7 @@ client
   })
   .then((tokenData: OAuth.TokenData) => {
     accessToken = tokenData.accessToken
-    refreshToken = tokenData.refreshToken
+    // refreshToken = tokenData.refreshToken
 
     const activeClient = generator('pleroma', `https://${process.env.HOST}`, accessToken)
 
