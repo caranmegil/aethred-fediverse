@@ -41,7 +41,7 @@ client
               let permissions = res.body.results
               if ( (permissions.indexOf("master") > -1 || permissions.indexOf("commander") >= -1) && value.content.includes(`${process.env.NAME}@${process.env.HOST}`)) {
                 request
-                  .post(process.env.LINGUA_HOST)
+                  .post(`${process.env.LINGUA_HOST}`)
                   .send( {text: value.content} )
                   .then( (resl) => {
                     console.log("!-->" + resl.body.response)
