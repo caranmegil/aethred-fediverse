@@ -33,29 +33,6 @@ client
 
     const activeClient = generator('pleroma', `https://${process.env.HOST}`, accessToken)
 
-    activeClient.getHomeTimeline().then( (resp: Response<Array<Entity.Status>>) => {
-      resp.data.forEach( (value: any) => {
-        console.log('!-->' + encodeURI(`${process.env.PERMISSIONS_HOST}/fediverse/${value.account.acct}`))
-        request
-        .get(encodeURI(`${process.env.PERMISSIONS_HOST}/fediverse/${value.account.acct}`))
-        .then( (res) => {
-          console.log('!-->' + res.body.results)
-          let permissions = res.body.results
-          if ( (permissions.indexOf("master") > -1 || permissions.indexOf("commander") >= -1) && value.content.includes(`${process.env.NAME}@${process.env.HOST}`)) {
-            request
-              .post(`${process.env.LINGUA_HOST}/`)
-              .send( {text: value.content} )
-              .then( (resl) => {
-                console.log("!-->" + resl.body.response)
-              })       
-          }
-        })
-        .catch( (err) => {
-          console.log(err)
-        })
-      })
-    })
-
     activeClient.getPublicTimeline().then( (resp: Response<Array<Entity.Status>>) => {
       resp.data.forEach( (value: any) => {
         console.log('-->' + encodeURI(`${process.env.PERMISSIONS_HOST}/fediverse/${value.account.acct}`))
