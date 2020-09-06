@@ -46,7 +46,7 @@ client
                   .post(`${process.env.LINGUA_HOST}/`)
                   .send( {text: value.content} )
                   .then( (resl) => {
-                    console.log("-->" + resl.body.response)
+                    console.log("!-->" + resl.body.response)
                 })       
               }
             })
@@ -55,7 +55,7 @@ client
             })
         })
       })
-    }, 500)
+    }, 1000)
   })
   .catch((err: Error) => console.error(err))
 })
