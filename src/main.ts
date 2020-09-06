@@ -40,7 +40,7 @@ client
             .then( (res) => {
               let permissions = res.body.results
               console.log(`--> perms of ${value.account.acct}: ${permissions}`)
-              if ( (permissions.indexOf("master") > -1 || permissions.indexOf("commander") >= -1) && value.content.includes(`${process.env.NAME}@${process.env.HOST}`)) {
+              if ( (permissions.indexOf("master") > -1 || permissions.indexOf("commander") >= -1) && value.content.includes(`${process.env.NAME}`)) {
                 request
                   .post(`${process.env.LINGUA_HOST}`)
                   .send( {text: value.content} )
