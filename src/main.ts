@@ -41,7 +41,7 @@ client
             .then( (res) => {
               let permissions = res.body.results
               if ( (permissions.indexOf("master") > -1 || permissions.indexOf("commander") >= -1) && value.content.includes(`${process.env.NAME}`)) {
-                let created_at = moment(value.created_at)
+                let created_at = moment(value.created_at, "YYYY-MM-DDTHH:mm:ss.SSSZ")
                 if (created_at.duration().asMilliseconds() >= next_available.duration().asMilliseconds()) {
                   next_available = created_at
 
