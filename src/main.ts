@@ -2,6 +2,7 @@ import generator, { Response, OAuth, Entity/*, WebSocketInterface*/ } from 'mega
 import Koa from 'koa'
 import Router from 'koa-router'
 import request from 'superagent'
+import moment from 'moment'
 
 const SCOPES: Array<string> = ['read', 'write', 'follow']
 const BASE_URL: string = `https://${process.env.HOST}` || 'https://chilli.social'
@@ -29,7 +30,7 @@ client
   })
   .then((tokenData: OAuth.TokenData) => {
     accessToken = tokenData.accessToken
-    // refreshToken = tokenData.refreshToken
+    let next_available = new moment()
 
     const activeClient = generator('pleroma', `https://${process.env.HOST}`, accessToken)
     setInterval( () => {
@@ -40,17 +41,22 @@ client
             .then( (res) => {
               let permissions = res.body.results
               if ( (permissions.indexOf("master") > -1 || permissions.indexOf("commander") >= -1) && value.content.includes(`${process.env.NAME}`)) {
-                request
-                  .post(`${process.env.LINGUA_HOST}`)
-                  .send( {text: value.content} )
-                  .then( (resl) => {
-                    console.log("!-->" + resl.body.response)
-                    console.log(value)
-                    //activeClient.postStatus(resl.body.response, {in_reply_to_id: value.id})
-                  })
-                  .catch( (err) => {
-                    console.log(err)
-                  })       
+                let created_at = moment(value.created_at)
+                if (created_at.duration().asMilliseconds() >= next_available.duration().asMilliseconds()) {
+                  next_available = created_at
+                  
+                  request
+                    .post(`${process.env.LINGUA_HOST}`)
+                    .send( {text: value.content} )
+                    .then( (resl) => {
+                      console.log("!-->" + resl.body.response)
+                      console.log(value)
+                      //activeClient.postStatus(resl.body.response, {in_reply_to_id: value.id})
+                    })
+                    .catch( (err) => {
+                      console.log(err)
+                    })       
+                }
               }
             })
             .catch( (err) => {
