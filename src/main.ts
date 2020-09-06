@@ -3,6 +3,7 @@ import Koa from 'koa'
 import Router from 'koa-router'
 import request from 'superagent'
 import moment from 'moment'
+import 'moment-duration-format'
 
 const SCOPES: Array<string> = ['read', 'write', 'follow']
 const BASE_URL: string = `https://${process.env.HOST}` || 'https://chilli.social'
