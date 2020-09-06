@@ -39,7 +39,7 @@ client
             .get(encodeURI(`${process.env.PERMISSIONS_HOST}/fediverse/${value.account.acct}`))
             .then( (res) => {
               let permissions = res.body.results
-              console.log(`--> perms: ${permissions}`)
+              console.log(`--> perms of ${value.account.acct}: ${permissions}`)
               if ( (permissions.indexOf("master") > -1 || permissions.indexOf("commander") >= -1) && value.content.includes(`${process.env.NAME}@${process.env.HOST}`)) {
                 request
                   .post(`${process.env.LINGUA_HOST}`)
