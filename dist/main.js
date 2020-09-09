@@ -43,10 +43,10 @@ var megalodon_1 = __importDefault(require("megalodon"));
 var koa_1 = __importDefault(require("koa"));
 var koa_router_1 = __importDefault(require("koa-router"));
 var superagent_1 = __importDefault(require("superagent"));
+var moment_1 = __importDefault(require("moment"));
 var SCOPES = ['read', 'write', 'follow'];
 var BASE_URL = "https://" + process.env.HOST || 'https://chilli.social';
 var accessToken;
-var refreshToken;
 var app = new koa_1.default();
 var router = new koa_router_1.default();
 var client = megalodon_1.default('pleroma', BASE_URL);
@@ -68,35 +68,45 @@ router.get("/", function (ctx, _) { return __awaiter(void 0, void 0, void 0, fun
         })
             .then(function (tokenData) {
             accessToken = tokenData.accessToken;
-            refreshToken = tokenData.refreshToken;
-            console.log('\naccess_token:');
-            console.log(accessToken);
-            console.log('\nrefresh_token:');
-            console.log(refreshToken);
-            console.log();
+            var next_available = moment_1.default();
             var activeClient = megalodon_1.default('pleroma', "https://" + process.env.HOST, accessToken);
-            activeClient.getPublicTimeline().then(function (resp) {
-                resp.data.forEach(function (value) {
-                    console.log('-->' + encodeURI(process.env.PERMISSIONS_HOST + "/fediverse/" + value.account.acct));
-                    superagent_1.default
-                        .get(encodeURI(process.env.PERMISSIONS_HOST + "/fediverse/" + value.account.acct))
-                        .then(function (res) {
-                        console.log('-->' + res.body.results);
-                        var permissions = res.body.results;
-                        if ((permissions.indexOf("master") > -1 || permissions.indexOf("commander") >= -1) && value.content.includes(process.env.NAME + "@" + process.env.HOST)) {
-                            superagent_1.default
-                                .post(process.env.LINGUA_HOST + "/")
-                                .send({ text: value.content })
-                                .then(function (resl) {
-                                console.log("-->" + resl.body.response);
-                            });
-                        }
-                    })
-                        .catch(function (err) {
-                        console.log(err);
+            setInterval(function () {
+                activeClient.getPublicTimeline().then(function (resp) {
+                    resp.data.forEach(function (value) {
+                        superagent_1.default
+                            .get(encodeURI(process.env.PERMISSIONS_HOST + "/fediverse/" + value.account.acct))
+                            .then(function (res) {
+                            var permissions = res.body.results;
+                            if ((permissions.indexOf("master") > -1 || permissions.indexOf("commander") >= -1) && value.content.includes("" + process.env.NAME)) {
+                                var created_at = moment_1.default(value.created_at, "YYYY-MM-DDTHH:mm:ss.SSSZ");
+                                if (next_available.isBefore(created_at)) {
+                                    next_available = created_at;
+                                    superagent_1.default
+                                        .post("" + process.env.LINGUA_HOST)
+                                        .send({ text: value.content })
+                                        .then(function (resl) {
+                                        resl.body.response.forEach(function (resp) {
+                                            activeClient.postStatus(resp, { in_reply_to_id: value.id })
+                                                .then(function (res) {
+                                                console.log(res);
+                                            })
+                                                .catch(function (err) {
+                                                console.log(err);
+                                            });
+                                        });
+                                    })
+                                        .catch(function (err) {
+                                        console.log(err);
+                                    });
+                                }
+                            }
+                        })
+                            .catch(function (err) {
+                            console.log(err);
+                        });
                     });
                 });
-            });
+            }, 1000);
         })
             .catch(function (err) { return console.error(err); });
         return [2];
